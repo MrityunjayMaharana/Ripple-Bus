@@ -2,7 +2,7 @@ import User from "../models/user.model.js";
 import jwt from "jsonwebtoken"
 
 class UserServices {
-    
+
   async createUser(data) {
     try {
       const { role, profile, conductor, admin, ...basicDetails } = data;
@@ -57,6 +57,26 @@ class UserServices {
       throw new Error("Error finding user by phone: " + error.message);
     }
   }
+
+  async findUserById(id) {
+    try {
+      const user = await User.findById(id).select("-password");
+      return user;
+    } catch (error) {
+      throw new Error("Error finding user by ID: " + error.message);
+    }
+  }
+
+  async getAllUsers() {
+    try {
+      const users = await User.find().select("-password");
+      return users;
+    } catch (error) {
+      throw new Error("Error retrieving all users: " + error.message);
+    }
+  }
+
+  
 
   async updateUserVerification(email, isVerified) {
     try {

@@ -30,6 +30,10 @@ const busSchema = new mongoose.Schema({
             type: String,
             enum: ["active", "inactive", "maintenance"],
             default: "active",
+        },
+        adminVerified: {
+            type: Boolean,
+            default: false,
         }
     }, 
     { 
