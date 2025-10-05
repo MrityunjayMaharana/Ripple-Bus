@@ -116,6 +116,76 @@ class VerificationService {
         throw new Error('Error verifying phone OTP: ' + error.message)
     }
   }
+
+  async sendPasswordResetEmail(email) {
+    try {
+      const user = await User.findOne({ email });
+      if (!user) {
+        return { success: false, message: "User not found" };
+      }
+  
+      const otp = this.generateOTP();
+      const expiryTime = Date.now() + 15 * 60 * 1000; // 15 minutes
+  
+      // Store OTP & expiry in user
+      user.emailOtp = otp;
+      user.emailOtpExpiry = new Date(expiryTime);
+      await user.save();
+  
+      // Send email
+      const mailOptions = {
+        from: `"Ripple Support" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "Reset your Ripple password",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 8px; background:rgb(37,37,37); color:white;">
+            <h2 style="color:#3498db;">Password Reset Request</h2>
+            <p>Use the following OTP to reset your password. This OTP will expire in 15 minutes.</p>
+            <h1 style="color:white; font-size: 36px; letter-spacing: 5px;">${otp}</h1>
+            <p>If you did not request a password reset, please ignore this email.</p>
+          </div>
+        `,
+      };
+  
+      await this.transporter.sendMail(mailOptions);
+      console.log(`Password reset email sent to ${email}`);
+      return { success: true, message: "Password reset OTP sent" };
+    } catch (error) {
+      console.error(`Error sending password reset email to ${email}:`, error);
+      throw new Error("Could not send password reset email");
+    }
+  }
+  
+  async verifyPasswordResetOtp(email, providedOtp, newPassword) {
+    try {
+      const user = await User.findOne({ email });
+      if (!user) {
+        return { success: false, message: "User not found" };
+      }
+  
+      if (!user.emailOtp || Date.now() > user.emailOtpExpiry) {
+        return { success: false, message: "OTP has expired" };
+      }
+  
+      if (String(user.emailOtp).trim() !== String(providedOtp).trim()) {
+        return { success: false, message: "Invalid OTP" };
+      }
+  
+      // OTP is valid → update password
+      const bcrypt = await import("bcryptjs");
+      const salt = await bcrypt.genSalt(13);
+      const hashedPassword = await bcrypt.hash(newPassword, salt);
+      user.password = hashedPassword;
+      user.emailOtp = null;
+      user.emailOtpExpiry = null;
+      await user.save();
+  
+      return { success: true, message: "Password reset successfully" };
+    } catch (error) {
+      throw new Error("Error resetting password: " + error.message);
+    }
+  }
+    
 }
 
 export default new VerificationService();

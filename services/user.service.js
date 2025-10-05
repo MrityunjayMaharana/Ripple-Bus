@@ -2,7 +2,7 @@ import User from "../models/user.model.js";
 import jwt from "jsonwebtoken"
 
 class UserServices {
-    
+
   async createUser(data) {
     try {
       const { role, profile, conductor, admin, ...basicDetails } = data;
@@ -11,9 +11,9 @@ class UserServices {
         role: role || "passenger",
       };
 
-      if (role == "passenger" && profile) {
+      if (profile) {
         userToCreate.profile = profile;
-      } else if (role == "passenger" && !profile) {
+      } else if(!profile) {
         userToCreate.profile = {};
       } else if (role == "conductor" && conductor) {
         userToCreate.conductor = conductor;
@@ -21,9 +21,6 @@ class UserServices {
         userToCreate.admin = admin;
       }
 
-      if (role != "passenger") {
-        delete userToCreate.profile;
-      }
       if (role != "conductor") {
         delete userToCreate.conductor;
       }
@@ -55,6 +52,37 @@ class UserServices {
       return user;
     } catch (error) {
       throw new Error("Error finding user by phone: " + error.message);
+    }
+  }
+
+  async findUserById(id) {
+    try {
+      const user = await User.findById(id).select("-password");
+      return user;
+    } catch (error) {
+      throw new Error("Error finding user by ID: " + error.message);
+    }
+  }
+
+  async getAllUsers() {
+    try {
+      const users = await User.find().select("-password");
+      return users;
+    } catch (error) {
+      throw new Error("Error retrieving all users: " + error.message);
+    }
+  }
+
+  async updateProfile(email, profileData) {
+    try {
+      const user = await User.findOneAndUpdate(
+        { email },
+        { profile: profileData },
+        { new: true }
+      ).select("-password");
+      return user;
+    } catch (error) {
+      throw new Error("Error updating user profile: " + error.message);
     }
   }
 

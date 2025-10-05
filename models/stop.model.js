@@ -18,4 +18,5 @@ const stopSchema = new mongoose.Schema({
     }
 }, 
 { timestamps: true })
-export default mongoose.model("Stop", stopSchema);
+const Stop = mongoose.model("Stop", stopSchema);
+export default Stop

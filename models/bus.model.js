@@ -29,11 +29,16 @@ const busSchema = new mongoose.Schema({
         status: {
             type: String,
             enum: ["active", "inactive", "maintenance"],
-            default: "active",
+            default: "inactive",
+        },
+        adminVerified: {
+            type: Boolean,
+            default: false,
         }
     }, 
     { 
         timestamps: true 
 })
 
-export default mongoose.model("Bus", busSchema)
+const Bus = mongoose.model('Bus', busSchema)
+export default Bus

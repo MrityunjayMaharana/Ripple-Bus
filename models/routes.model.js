@@ -15,7 +15,7 @@ const routeSchema = new mongoose.Schema({
     stops: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: stop,
+            ref: Stop,
             sequence: Number,
             estimatedArrival: Number
         }
@@ -30,4 +30,6 @@ const routeSchema = new mongoose.Schema({
     },
 }, 
 { timestamps: true })
-export default mongoose.model("Route", routeSchema)
+
+const Route = mongoose.model("Route", routeSchema)
+export default Route
