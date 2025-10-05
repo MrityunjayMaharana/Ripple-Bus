@@ -196,4 +196,18 @@ export async function verifyForgotPasswordOtp(req, res) {
     }
 }
 
-
+export async function getUserData(req, res) {
+    try {
+        const { email } = req.user;
+        if(!email) {
+            return res.status(400).json({ message: 'Email is required' })
+        }
+        const user = await userService.findUserByEmail(email)
+        if(!user) {
+            return res.status(400).json({ message: 'User not found' })
+        }
+        res.status(200).json({ user })
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
+}

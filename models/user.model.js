@@ -41,13 +41,7 @@ const adminDetails = new mongoose.Schema({
     enum: ["manager", "supervisor"],
     default: "manager",
     trim: true,
-  },
-  employeeId: {
-    type: String,
-    unique: true,
-    sparse: true,
-    trim: true,
-  },
+  }
 });
 
 const userSchema = new mongoose.Schema(

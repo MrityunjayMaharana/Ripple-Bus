@@ -11,9 +11,9 @@ class UserServices {
         role: role || "passenger",
       };
 
-      if (role == "passenger" && profile) {
+      if (profile) {
         userToCreate.profile = profile;
-      } else if (role == "passenger" && !profile) {
+      } else if(!profile) {
         userToCreate.profile = {};
       } else if (role == "conductor" && conductor) {
         userToCreate.conductor = conductor;
@@ -21,9 +21,6 @@ class UserServices {
         userToCreate.admin = admin;
       }
 
-      if (role != "passenger") {
-        delete userToCreate.profile;
-      }
       if (role != "conductor") {
         delete userToCreate.conductor;
       }
@@ -76,7 +73,18 @@ class UserServices {
     }
   }
 
-  
+  async updateProfile(email, profileData) {
+    try {
+      const user = await User.findOneAndUpdate(
+        { email },
+        { profile: profileData },
+        { new: true }
+      ).select("-password");
+      return user;
+    } catch (error) {
+      throw new Error("Error updating user profile: " + error.message);
+    }
+  }
 
   async updateUserVerification(email, isVerified) {
     try {
